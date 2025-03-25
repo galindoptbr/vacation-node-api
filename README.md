@@ -55,6 +55,165 @@ npm start
 npm test
 ```
 
+## Criando o Primeiro Administrador
+
+Para criar o primeiro usuário administrador, siga estes passos:
+
+1. Primeiro, certifique-se de que a API está rodando. Em um terminal, execute:
+```bash
+npm run dev
+```
+
+2. Em outro terminal, você pode criar o primeiro administrador usando o endpoint de registro com um payload especial:
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+  "nome": "Administrador",
+  "email": "admin@exemplo.com",
+  "senha": "senha123",
+  "cargo": "Administrador",
+  "isAdmin": true
+}'
+```
+
+Resposta:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "_id": "...",
+    "nome": "Administrador",
+    "email": "admin@exemplo.com",
+    "cargo": "Administrador",
+    "isAdmin": true
+  }
+}
+```
+
+**Importante**: 
+- A API deve estar rodando em um terminal separado antes de executar o comando de criação do admin
+- Este endpoint só funcionará se não houver nenhum usuário administrador no banco de dados
+- Após criar o primeiro admin, você não poderá mais criar outros admins diretamente pelo endpoint de registro
+- Para criar mais administradores, use o endpoint de promoção a admin (requer que você já seja admin)
+
+## Exemplos Práticos de Uso
+
+### 1. Registro de Usuário
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+  "nome": "João Silva",
+  "email": "joao@exemplo.com",
+  "senha": "123456",
+  "cargo": "Desenvolvedor"
+}'
+```
+
+Resposta:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "_id": "...",
+    "nome": "João Silva",
+    "email": "joao@exemplo.com",
+    "cargo": "Desenvolvedor",
+    "isAdmin": false
+  }
+}
+```
+
+### 2. Login
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "joao@exemplo.com",
+  "senha": "123456"
+}'
+```
+
+Resposta:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "_id": "...",
+    "nome": "João Silva",
+    "email": "joao@exemplo.com",
+    "cargo": "Desenvolvedor",
+    "isAdmin": false
+  }
+}
+```
+
+### 3. Listar Usuários (requer autenticação)
+```bash
+curl -X GET http://localhost:3000/api/auth/users \
+-H "Authorization: Bearer seu-token-jwt"
+```
+
+Resposta:
+```json
+[
+  {
+    "_id": "...",
+    "nome": "João Silva",
+    "email": "joao@exemplo.com",
+    "cargo": "Desenvolvedor",
+    "isAdmin": false
+  },
+  {
+    "_id": "...",
+    "nome": "Maria Santos",
+    "email": "maria@exemplo.com",
+    "cargo": "Gerente",
+    "isAdmin": true
+  }
+]
+```
+
+### 4. Criar Solicitação de Férias (requer autenticação)
+```bash
+curl -X POST http://localhost:3000/api/ferias \
+-H "Authorization: Bearer seu-token-jwt" \
+-H "Content-Type: application/json" \
+-d '{
+  "dataInicio": "2024-07-01",
+  "dataFim": "2024-07-15",
+  "motivo": "Férias de verão"
+}'
+```
+
+Resposta:
+```json
+{
+  "_id": "...",
+  "funcionario": {
+    "_id": "...",
+    "nome": "João Silva",
+    "email": "joao@exemplo.com"
+  },
+  "dataInicio": "2024-07-01",
+  "dataFim": "2024-07-15",
+  "motivo": "Férias de verão",
+  "status": "pendente"
+}
+```
+
+### 5. Listar Férias (requer autenticação)
+```bash
+# Listar próprias férias
+curl -X GET http://localhost:3000/api/ferias/minhas \
+-H "Authorization: Bearer seu-token-jwt"
+
+# Listar todas as férias (admin)
+curl -X GET http://localhost:3000/api/ferias/admin \
+-H "Authorization: Bearer seu-token-jwt"
+```
+
 ## API Documentation
 
 ### Endpoints
