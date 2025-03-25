@@ -15,8 +15,8 @@ const generateToken = (user) => {
 
 const register = async (req, res) => {
   try {
-    const { nome, email, senha, cargo } = req.body;
-    console.log('Dados do registro:', { nome, email, cargo });
+    const { nome, email, senha, cargo, isAdmin } = req.body;
+    console.log('Dados do registro:', { nome, email, cargo, isAdmin });
 
     // Verifica se o usuário já existe
     const userExists = await User.findOne({ email });
@@ -24,13 +24,13 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'Email já cadastrado' });
     }
 
-    // Cria o usuário (sempre como não admin)
+    // Cria o usuário com o status de admin definido no corpo da requisição
     const user = await User.create({
       nome,
       email,
       senha, // A senha será hasheada pelo middleware do modelo
       cargo,
-      isAdmin: false
+      isAdmin: isAdmin || false // Usa o valor do corpo da requisição ou false como padrão
     });
 
     console.log('Usuário criado:', { 

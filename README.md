@@ -55,51 +55,9 @@ npm start
 npm test
 ```
 
-## Criando o Primeiro Administrador
+## Practical Usage Examples
 
-Para criar o primeiro usuário administrador, siga estes passos:
-
-1. Primeiro, certifique-se de que a API está rodando. Em um terminal, execute:
-```bash
-npm run dev
-```
-
-2. Em outro terminal, você pode criar o primeiro administrador usando o endpoint de registro com um payload especial:
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
--H "Content-Type: application/json" \
--d '{
-  "nome": "Administrador",
-  "email": "admin@exemplo.com",
-  "senha": "senha123",
-  "cargo": "Administrador",
-  "isAdmin": true
-}'
-```
-
-Resposta:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "_id": "...",
-    "nome": "Administrador",
-    "email": "admin@exemplo.com",
-    "cargo": "Administrador",
-    "isAdmin": true
-  }
-}
-```
-
-**Importante**: 
-- A API deve estar rodando em um terminal separado antes de executar o comando de criação do admin
-- Este endpoint só funcionará se não houver nenhum usuário administrador no banco de dados
-- Após criar o primeiro admin, você não poderá mais criar outros admins diretamente pelo endpoint de registro
-- Para criar mais administradores, use o endpoint de promoção a admin (requer que você já seja admin)
-
-## Exemplos Práticos de Uso
-
-### 1. Registro de Usuário
+### 1. User Registration
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
 -H "Content-Type: application/json" \
@@ -107,11 +65,12 @@ curl -X POST http://localhost:3000/api/auth/register \
   "nome": "João Silva",
   "email": "joao@exemplo.com",
   "senha": "123456",
-  "cargo": "Desenvolvedor"
+  "cargo": "Desenvolvedor",
+  "isAdmin": true
 }'
 ```
 
-Resposta:
+Response:
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
@@ -120,10 +79,12 @@ Resposta:
     "nome": "João Silva",
     "email": "joao@exemplo.com",
     "cargo": "Desenvolvedor",
-    "isAdmin": false
+    "isAdmin": true
   }
 }
 ```
+
+> **Note:** The `isAdmin` field is optional. If not provided, it defaults to `false`. You can now create admin users directly through the registration form by setting `isAdmin: true`.
 
 ### 2. Login
 ```bash
@@ -135,7 +96,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 }'
 ```
 
-Resposta:
+Response:
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
@@ -144,18 +105,18 @@ Resposta:
     "nome": "João Silva",
     "email": "joao@exemplo.com",
     "cargo": "Desenvolvedor",
-    "isAdmin": false
+    "isAdmin": true
   }
 }
 ```
 
-### 3. Listar Usuários (requer autenticação)
+### 3. List Users (requires authentication)
 ```bash
 curl -X GET http://localhost:3000/api/auth/users \
 -H "Authorization: Bearer seu-token-jwt"
 ```
 
-Resposta:
+Response:
 ```json
 [
   {
@@ -163,19 +124,19 @@ Resposta:
     "nome": "João Silva",
     "email": "joao@exemplo.com",
     "cargo": "Desenvolvedor",
-    "isAdmin": false
+    "isAdmin": true
   },
   {
     "_id": "...",
     "nome": "Maria Santos",
     "email": "maria@exemplo.com",
     "cargo": "Gerente",
-    "isAdmin": true
+    "isAdmin": false
   }
 ]
 ```
 
-### 4. Criar Solicitação de Férias (requer autenticação)
+### 4. Create Vacation Request (requires authentication)
 ```bash
 curl -X POST http://localhost:3000/api/ferias \
 -H "Authorization: Bearer seu-token-jwt" \
@@ -187,7 +148,7 @@ curl -X POST http://localhost:3000/api/ferias \
 }'
 ```
 
-Resposta:
+Response:
 ```json
 {
   "_id": "...",
@@ -203,13 +164,13 @@ Resposta:
 }
 ```
 
-### 5. Listar Férias (requer autenticação)
+### 5. List Vacations (requires authentication)
 ```bash
-# Listar próprias férias
+# List own vacations
 curl -X GET http://localhost:3000/api/ferias/minhas \
 -H "Authorization: Bearer seu-token-jwt"
 
-# Listar todas as férias (admin)
+# List all vacations (admin)
 curl -X GET http://localhost:3000/api/ferias/admin \
 -H "Authorization: Bearer seu-token-jwt"
 ```
@@ -222,9 +183,11 @@ curl -X GET http://localhost:3000/api/ferias/admin \
 
 | Method | Endpoint | Description | Authentication |
 |--------|----------|-------------|----------------|
-| POST | `/api/auth/register` | Register new user | No |
+| POST | `/api/auth/register` | Register new user (can be admin if isAdmin is set to true) | No |
 | POST | `/api/auth/login` | User login | No |
 | GET | `/api/auth/users` | List all users (available for all authenticated users) | Yes |
+| PATCH | `/api/auth/promote/:userId` | Promote user to admin (admin only) | Yes |
+| DELETE | `/api/auth/delete/:userId` | Delete user (admin only) | Yes |
 
 #### Vacations (`/api/ferias`)
 
@@ -255,6 +218,7 @@ Authorization: Bearer your_jwt_token
    - System validates data
    - Password is hashed with bcrypt
    - User is created in MongoDB
+   - Admin status can be set during registration
 
 2. **Login**
    - Client sends credentials to `/api/auth/login`
@@ -278,7 +242,7 @@ Authorization: Bearer your_jwt_token
    - `/api/ferias/admin` route requires authentication
    - Middleware verifies if user is admin
    - Returns complete vacation list
-   - **New:** `/api/ferias/admin/:id` allows admin to delete any vacation request
+   - `/api/ferias/admin/:id` allows admin to delete any vacation request
 
 2. **User Access**
    - Specific routes for common users
