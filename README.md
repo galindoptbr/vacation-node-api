@@ -22,18 +22,7 @@ cd vacation-node-api
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
-```bash
-cp .env.example .env
-```
-Edite o arquivo `.env` com suas configurações:
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/ferias-api
-JWT_SECRET=400270596b02bb71fd2ef03ac953857522aef7d47457b886afb388215997423e0709ccaad8726d2a0db0e01175dd771f1eee6080d01f4d4df576955a2ae0044c
-```
-
-4. Inicie o servidor:
+3. Inicie o servidor:
 ```bash
 npm run dev
 ```
