@@ -31,12 +31,26 @@ npm install
 ```
 
 3. Configure environment variables:
-Create a `.env` file in the root directory with the following variables:
-```env
-PORT=3000
-MONGODB_URI=your_mongodb_url
-JWT_SECRET=your_jwt_secret
-```
+   - Copy the `.env.example` file to create your own `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+   - Edit the `.env` file with your specific configuration values
+   - Required environment variables:
+     ```env
+     PORT=3000                    # Server port
+     MONGODB_URI=your_mongodb_url # MongoDB connection string
+     JWT_SECRET=your_secret_key   # Secret key for JWT tokens
+     ```
+   - Optional environment variables (for future email notifications):
+     ```env
+     SMTP_HOST=your_smtp_host
+     SMTP_PORT=your_smtp_port
+     SMTP_USER=your_email
+     SMTP_PASS=your_password
+     ```
+
+> **Note:** Never commit your actual `.env` file to version control. The `.env.example` file serves as a template with example values.
 
 ## How to Run
 
